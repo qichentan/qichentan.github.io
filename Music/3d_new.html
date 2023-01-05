@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <title></title>
+    
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blog Template">
+    <meta name="author" content="Xiaoying Riley at 3rd Wave Media">    
+    <link rel="shortcut icon" href="../favicon.ico">
+    
+    <!-- FontAwesome JS-->
+    <script defer src="https://use.fontawesome.com/releases/v5.7.1/js/all.js"></script>
+    
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/styles/monokai-sublime.min.css">
+    
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="../assets/css/theme-1.css">
+    
+
+</head> 
+
+<body>
+    
+    <header class="header text-center" style="background: #FF8C00">
+	    <h1 class="blog-name pt-lg-4 mb-0"><a href="../index.html">TylerTam</a></h1>
+
+	    <nav class="navbar navbar-expand-lg navbar-dark" >
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div id="navigation" class="collapse navbar-collapse flex-column" >
+				<div class="profile-section pt-3 pt-lg-0">
+				    <img class="profile-image mb-3 rounded-circle mx-auto" src="../assets/image/profile2.png" alt="image" >
+
+					<div class="bio mb-3">Hi, my name is Tyler Tam. <br>
+						A PhD student, a software engineer, and a music lover.
+						<br>
+						<br><a href="../about.html">View my profile</a></div><!--//bio-->
+					<ul class="social-list list-inline py-3 mx-auto">
+<!--			            <li class="list-inline-item"><a href="#"><i class="fab fa-twitter fa-fw"></i></a></li>-->
+			            <li class="list-inline-item"><a href="https://aantc.ust.hk/profiles/qtanaf/"><i class="fab fa-linkedin-in fa-fw"></i></a></li>
+			            <li class="list-inline-item"><a href="https://github.com/tylertam98"><i class="fab fa-github-alt fa-fw"></i></a></li>
+						<li class="list-inline-item"><a href="https://space.bilibili.com/381352367"><i><img src="../assets/image/bilibili.png" style="position: relative;width: 50%"></i></a></li>
+
+<!--			            <li class="list-inline-item"><a href="#"><i class="fab fa-stack-overflow fa-fw"></i></a></li>-->
+<!--			            <li class="list-inline-item"><a href="#"><i class="fab fa-codepen fa-fw"></i></a></li>-->
+			        </ul><!--//social-list-->
+			        <hr>
+				</div><!--//profile-section-->
+
+				<ul class="navbar-nav flex-column text-left">
+					<li class="nav-item">
+						<a class="nav-link" id="instructions"><i class="fas fa-bookmark fa-fw mr-2"></i><span style="font-size: 28px">Start Game</span></a>
+					</li>
+					<li class="nav-item">
+					    <a class="nav-link"><i class="fas fa-bookmark fa-fw mr-2"></i>Press "W/S/A/D" To Move</a>
+					</li>
+					<li class="nav-item">
+					    <a class="nav-link"><i class="fas fa-bookmark fa-fw mr-2"></i>Press "Esc" To Exit</a>
+					</li>
+					<li class="nav-item ">
+					    <a class="nav-link" href="../music.html"><i class="fas fa-bookmark fa-fw mr-2"></i>Go Back</a>
+					</li>
+<!--					<li class="nav-item">-->
+<!--					    <a class="nav-link" href="about.html"><i class="fas fa-user fa-fw mr-2"></i>About Me</a>-->
+<!--					</li>-->
+				</ul>
+
+				<div class="my-2 my-md-3">
+<!--				    <a class="btn btn-primary">Get in Touch</a><br>-->
+<!--					<a><img src="assets/image/wechat.png" style="width: 40%"></a>-->
+				</div>
+			</div>
+		</nav>
+    </header>
+    
+    <div class="main-wrapper">
+	    
+	    <div id="blocker">
+
+
+<!--			<button id="instructions">Click to play</button>-->
+
+
+		</div>
+
+    
+    </div><!--//main-wrapper-->
+
+       
+    <!-- Javascript -->          
+    <script src="../assets/plugins/jquery-3.3.1.min.js"></script>
+    <script src="../assets/plugins/popper.min.js"></script>
+    <script src="../assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+    
+    <!-- Page Specific JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/highlight.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="../assets/js/blog.js"></script>
+    
+    <!-- Style Switcher (REMOVE ON YOUR PRODUCTION SITE) -->
+    <script src="../assets/js/demo/style-switcher.js"></script>
+
+	<script type="module">
+
+			import * as THREE from "../three/build/three.module.js";
+
+			import { PointerLockControls } from "../three/examples/jsm/controls/PointerLockControls.js";
+			import { STLLoader } from "../three/examples/jsm/loaders/STLLoader.js";
+			import { Lut } from '../three/examples/jsm/math/Lut.js';
+
+			let camera, scene, renderer, controls, mesh, params, lut;
+
+			const objects = [];
+
+			let raycaster;
+
+			let moveForward = false;
+			let moveBackward = false;
+			let moveLeft = false;
+			let moveRight = false;
+			let moveOrigin = false;
+			let canJump = false;
+			let geometry_name = 'static/data/heatmap_850_550_100.json'
+
+			let prevTime = performance.now();
+			const velocity = new THREE.Vector3();
+			const direction = new THREE.Vector3();
+			const vertex = new THREE.Vector3();
+			const color = new THREE.Color();
+
+			init();
+			animate();
+
+			function init() {
+			    lut = new Lut();
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.y = 10;
+
+				scene = new THREE.Scene();
+				//scene.background = new THREE.Color( 0x3e0913 );
+				scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+				const bgLoader = new THREE.TextureLoader();
+				const bgTexture = bgLoader.load('./3d/bg.jpg');
+				scene.background = bgTexture;
+
+				const light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+				light.position.set( 0.5, 1, 0.75 );
+				//scene.add( light );
+
+
+
+				controls = new PointerLockControls( camera, document.body );
+
+				const blocker = document.getElementById( 'blocker' );
+				const instructions = document.getElementById( 'instructions' );
+
+
+
+
+				controls.addEventListener( 'lock', function () {
+
+					instructions.style.display = 'none';
+					blocker.style.display = 'none';
+
+				} );
+
+				controls.addEventListener( 'unlock', function () {
+
+					blocker.style.display = 'block';
+					instructions.style.display = '';
+
+				} );
+
+				scene.add( controls.getObject() );
+
+				const onKeyDown = function ( event ) {
+
+					switch ( event.keyCode ) {
+
+						case 38: // up
+						case 87: // w
+							moveForward = true;
+							break;
+
+						case 37: // left
+						case 65: // a
+							moveLeft = true;
+							break;
+
+						case 40: // down
+						case 83: // s
+							moveBackward = true;
+							break;
+
+						case 39: // right
+						case 68: // d
+							moveRight = true;
+							break;
+
+						case 32: // space
+							if ( canJump === true ) velocity.y += 350;
+							canJump = false;
+							break;
+
+						case 71: //origin
+							moveOrigin = true;
+							break;
+
+					}
+
+				};
+
+				const onKeyUp = function ( event ) {
+
+					switch ( event.keyCode ) {
+
+						case 38: // up
+						case 87: // w
+							moveForward = false;
+							break;
+
+						case 37: // left
+						case 65: // a
+							moveLeft = false;
+							break;
+
+						case 40: // down
+						case 83: // s
+							moveBackward = false;
+							break;
+
+						case 39: // right
+						case 68: // d
+							moveRight = false;
+							break;
+
+						case 71: //origin
+							moveOrigin = false;
+							break;
+
+					}
+
+				};
+
+				document.addEventListener( 'keydown', onKeyDown, false );
+				document.addEventListener( 'keyup', onKeyUp, false );
+
+				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+
+				// floor
+
+				let floorGeometry = new THREE.PlaneBufferGeometry( 400, 400, 100, 100 );
+				floorGeometry.rotateX( - Math.PI / 2 );
+
+				// vertex displacement
+
+				let position = floorGeometry.attributes.position;
+
+				for ( let i = 0, l = position.count; i < l; i ++ ) {
+
+					vertex.fromBufferAttribute( position, i );
+
+					vertex.x += Math.random() * 20 - 10;
+					vertex.y += Math.random() * 2;
+					vertex.z += Math.random() * 20 - 10;
+
+					position.setXYZ( i, vertex.x, vertex.y, vertex.z );
+
+				}
+
+				floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
+
+				position = floorGeometry.attributes.position;
+				const colorsFloor = [];
+
+				for ( let i = 0, l = position.count; i < l; i ++ ) {
+
+					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+					colorsFloor.push( color.r, color.g, color.b );
+
+				}
+
+				floorGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colorsFloor, 3 ) );
+
+				const floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: true } );
+
+				const floor = new THREE.Mesh( floorGeometry, floorMaterial );
+				floorMaterial.transparent = true;
+				floorMaterial.opacity = 0.5;
+				scene.add( floor );
+
+				// objects
+
+				const boxGeometry = new THREE.BoxBufferGeometry( 20, 20, 20 ).toNonIndexed();
+
+				position = boxGeometry.attributes.position;
+				const colorsBox = [];
+
+				for ( let i = 0, l = position.count; i < l; i ++ ) {
+
+					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+					colorsBox.push( color.r, color.g, color.b );
+
+				}
+
+
+
+                mesh = new THREE.Mesh( undefined, new THREE.MeshLambertMaterial( {
+					side: THREE.DoubleSide,
+					color: 0xF5F5F5,
+					vertexColors: true
+				} ) );
+				scene.add( mesh );
+
+				params	= {
+					colorMap: 'rainbow',
+				};
+
+
+				var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Piano.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0x696969,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+                        //mesh.position.set(50, 0, -40);//对齐
+						mesh.position.set(-75+20, 0, -75-16);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, xAxis, -Math.PI / 2);
+                        mesh.scale.set(0.4, 0.4, 0.4);
+                        mesh.receiveShadow = true;
+                        scene.add(mesh);
+                    });
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Piano.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0x696969,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+                        //mesh.position.set(50, 0, -40);//对齐
+						mesh.position.set(75+20, 0, -75-16);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, xAxis, -Math.PI / 2);
+                        mesh.scale.set(0.4, 0.4, 0.4);
+                        mesh.receiveShadow = true;
+                        scene.add(mesh);
+                    });
+
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Guitar.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0xEE9A49,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+                        //mesh.position.set(50, 0, -40);//对齐
+						mesh.position.set(20, 6, -60);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, xAxis, -Math.PI / 2);
+                        rotateAroundWorldAxis(mesh, yAxis, -Math.PI / 5);
+                        mesh.scale.set(1, 1, 1);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Guitar.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0x000080,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+                        //mesh.position.set(50, 0, -40);//对齐
+						mesh.position.set(-20, 6, -60);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, xAxis, -Math.PI / 2);
+                        rotateAroundWorldAxis(mesh, yAxis, -Math.PI / 5);
+                        mesh.scale.set(1, 1, 1);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Drum.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0x8B8970,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+						mesh.position.set(0+4, 12, -130-10);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, yAxis, -Math.PI / 8);
+                        mesh.scale.set(4, 4, 4);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Harp.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0xCD6600,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+						mesh.position.set(40, 7, -100);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, yAxis, -Math.PI / 5);
+                        mesh.scale.set(0.1, 0.1, 0.1);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/Flute.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0xCDC8B1,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+						mesh.position.set(0,3,-50);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, xAxis, Math.PI / 2);
+                        mesh.scale.set(0.2, 0.2, 0.2);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+				var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/string.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0x8B4500,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+						mesh.position.set(-40,1,-100);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        //rotateAroundWorldAxis(mesh, yAxis, -Math.PI / 8);
+                        mesh.scale.set(0.1,0.1,0.1);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+                var loader = new STLLoader();
+                loader.load
+                (
+                    './3d/pipa.stl',
+                    function(geometry)
+                    {
+                        var material = new THREE.MeshLambertMaterial({
+                            color: 0xA0522D,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+
+                        var mesh = new THREE.Mesh(geometry, material);
+
+						mesh.position.set(0,15,-90);//对齐
+
+                        let xAxis = new THREE.Vector3(1, 0, 0);
+                        let yAxis = new THREE.Vector3(0, 1, 0);
+                        let zAxis = new THREE.Vector3(0, 0, 1);
+                        rotateAroundWorldAxis(mesh, xAxis, Math.PI / 2);
+                        rotateAroundWorldAxis(mesh, yAxis, -Math.PI / 2);
+                        mesh.scale.set(0.03,0.03,0.03);
+                        mesh.receiveShadow = true;
+
+                        scene.add(mesh);
+
+                    });
+
+
+
+			//创建伪声源
+                const geometry = new THREE.BoxGeometry();
+                const material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+                material.transparent=true;
+                material.opacity = 0.1;
+                //piano1
+                const cube_piano = new THREE.Mesh( geometry, material );
+                cube_piano.position.set(-75, 0, -75);
+                scene.add( cube_piano );
+                //piano2
+                const cube_piano2 = new THREE.Mesh( geometry, material );
+                cube_piano2.position.set(75, 0, -75);
+                scene.add( cube_piano2 );
+                //Guitar
+                const cube_guitar = new THREE.Mesh( geometry, material );
+                cube_guitar.position.set(20, 0, -60);
+                scene.add( cube_guitar );
+                //Bass
+                const cube_bass = new THREE.Mesh( geometry, material );
+                cube_bass.position.set(-20, 0, -60);
+                scene.add( cube_bass );
+                //Drum
+                const cube_drum = new THREE.Mesh( geometry, material );
+                cube_drum.position.set(0, 0, -130);
+                scene.add( cube_drum );
+                //Harp
+                const cube_harp = new THREE.Mesh( geometry, material );
+                cube_harp.position.set(40, 0, -100);
+                scene.add( cube_harp );
+                //Flute
+                const cube_flute = new THREE.Mesh( geometry, material );
+                cube_flute.position.set(0, 0, -50);
+                scene.add( cube_flute );
+                //String
+                const cube_string = new THREE.Mesh( geometry, material );
+                cube_string.position.set(-40, 0, -100);
+                scene.add( cube_string );
+
+                //Pipa
+                const cube_pipa = new THREE.Mesh( geometry, material );
+                cube_pipa.position.set(0, 0, -90);
+                scene.add( cube_pipa );
+
+
+
+
+                //audio
+				// 创建一个虚拟的监听者
+				var listener = new THREE.AudioListener();
+				// 监听者绑定到相机对象
+				camera.add(listener);
+				//Piano======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_piano.add(PosAudio);
+				// 创建一个音频加载器
+				var audioLoader = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader.load('./guiyi/piano1.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio.setBuffer(AudioBuffer);
+					PosAudio.setVolume(1); //音量
+					PosAudio.setRefDistance(200); //参数值越大,声音越大
+					//PosAudio.play(); //播放
+					//PosAudio.setLoop(true);
+                    });
+
+				//Piano2======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio2 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_piano2.add(PosAudio2);
+				// 创建一个音频加载器
+				var audioLoader2 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader2.load('./guiyi/piano2.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio2.setBuffer(AudioBuffer);
+					PosAudio2.setVolume(0.4); //音量
+					PosAudio2.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio2.play(); //播放
+					//PosAudio2.setLoop(true);
+                    });
+
+				//Guitar======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio3 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_guitar.add(PosAudio3);
+				// 创建一个音频加载器
+				var audioLoader3 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader3.load('./guiyi/guitar.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio3.setBuffer(AudioBuffer);
+					PosAudio3.setVolume(0.4); //音量
+					PosAudio3.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio3.play(); //播放
+					//PosAudio3.setLoop(true);
+                    });
+
+				//Bass======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio4 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_guitar.add(PosAudio4);
+				// 创建一个音频加载器
+				var audioLoader4 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader4.load('./guiyi/bass.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio4.setBuffer(AudioBuffer);
+					PosAudio4.setVolume(0.4); //音量
+					PosAudio4.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio4.play(); //播放
+					//PosAudio4.setLoop(true);
+                    });
+
+				//Drum======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio5 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_drum.add(PosAudio5);
+				// 创建一个音频加载器
+				var audioLoader5 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader5.load('./guiyi/drum.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio5.setBuffer(AudioBuffer);
+					PosAudio5.setVolume(0.4); //音量
+					PosAudio5.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio5.play(); //播放
+					//PosAudio5.setLoop(true);
+                    });
+
+				//Harp======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio6 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_harp.add(PosAudio6);
+				// 创建一个音频加载器
+				var audioLoader6 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader6.load('./guiyi/harp.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio6.setBuffer(AudioBuffer);
+					PosAudio6.setVolume(0.4); //音量
+					PosAudio6.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio6.play(); //播放
+					//PosAudio6.setLoop(true);
+                    });
+
+				//Flute======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio7 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_harp.add(PosAudio7);
+				// 创建一个音频加载器
+				var audioLoader7 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader7.load('./guiyi/flute.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio7.setBuffer(AudioBuffer);
+					PosAudio7.setVolume(0.4); //音量
+					PosAudio7.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio7.play(); //播放
+					//PosAudio7.setLoop(true);
+                    });
+
+				//String======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio8 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_string.add(PosAudio8);
+				// 创建一个音频加载器
+				var audioLoader8 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader8.load('./guiyi/string.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio8.setBuffer(AudioBuffer);
+					PosAudio8.setVolume(0.2); //音量
+					PosAudio8.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio9.play(); //播放
+					//PosAudio8.setLoop(true);
+                    });
+
+				//Pipa======================================================
+				// 创建一个位置音频对象,监听者作为参数,音频和监听者关联。
+				var PosAudio9 = new THREE.PositionalAudio(listener);
+				//音源绑定到一个网格模型上
+				cube_pipa.add(PosAudio9);
+				// 创建一个音频加载器
+				var audioLoader9 = new THREE.AudioLoader();
+				// 加载音频文件，返回一个音频缓冲区对象作为回调函数参数
+				audioLoader9.load('./guiyi/pipa.mp3', function(AudioBuffer) {
+					// console.log(buffer);
+                      // 音频缓冲区对象关联到音频对象audio
+					PosAudio9.setBuffer(AudioBuffer);
+					PosAudio9.setVolume(0.4); //音量
+					PosAudio9.setRefDistance(150); //参数值越大,声音越大
+					//PosAudio9.play(); //播放
+					//PosAudio9.setLoop(true);
+                    });
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				//
+				instructions.addEventListener( 'click', function () {
+					PosAudio.play(); //播放
+					PosAudio2.play(); //播放
+					PosAudio3.play(); //播放
+					PosAudio4.play(); //播放
+					PosAudio5.play(); //播放
+					PosAudio6.play(); //播放
+					PosAudio7.play(); //播放
+					PosAudio8.play(); //播放
+					PosAudio9.play(); //播放
+					controls.lock();
+
+				}, false );
+
+				const light1 = new THREE.SpotLight( 0xffffff );
+				light1.position.set( 0, 5, 10 );
+				light1.shadow = true;
+				light.target = cube_drum
+				scene.add(light1);
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+			function rotateAroundWorldAxis(object, axis, radians) {
+			 	let rotWorldMatrix = new THREE.Matrix4();
+			 	rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+			    rotWorldMatrix.multiply(object.matrix);
+				object.matrix = rotWorldMatrix;
+			    object.rotation.setFromRotationMatrix(object.matrix);
+			      }
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				const time = performance.now();
+
+				if ( controls.isLocked === true ) {
+
+					raycaster.ray.origin.copy( controls.getObject().position );
+					raycaster.ray.origin.y -= 10;
+
+					const intersections = raycaster.intersectObjects( objects );
+
+					const onObject = intersections.length > 0;
+
+					const delta = ( time - prevTime ) / 1000;
+
+					velocity.x -= velocity.x * 10.0 * delta;
+					velocity.z -= velocity.z * 10.0 * delta;
+
+					velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+					direction.z = Number( moveForward ) - Number( moveBackward );
+					direction.x = Number( moveRight ) - Number( moveLeft );
+					direction.normalize(); // this ensures consistent movements in all directions
+
+					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+
+					if ( onObject === true ) {
+
+						velocity.y = Math.max( 0, velocity.y );
+
+						canJump = true;
+
+					}
+
+					controls.moveRight( - velocity.x * delta );
+					controls.moveForward( - velocity.z * delta );
+
+					controls.getObject().position.y += ( velocity.y * delta ); // new behavior
+
+					if ( controls.getObject().position.y < 10 ) {
+
+						velocity.y = 0;
+						controls.getObject().position.y = 10;
+
+						canJump = true;
+
+					}
+
+				}
+
+				prevTime = time;
+
+				renderer.render( scene, camera );
+
+			}
+
+
+
+
+
+		</script>
+    
+
+</body>
+</html> 
+
